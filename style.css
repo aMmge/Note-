@@ -172,3 +172,20 @@ body {
 #save-note:hover {
     background: #e0a800;
 }
+
+.filter {
+    margin-bottom: 15px;
+}
+
+.filter label {
+    margin-right: 10px;
+    font-size: 14px;
+    color: #333;
+}
+
+.filter select {
+    padding: 5px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #fff;
+}

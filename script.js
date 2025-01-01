@@ -84,34 +84,36 @@ const database = {
     const filterTag = document.getElementById("filter-tags").value;
 
     let notes = categoryId === "all"
-      ? database.notes
-      : database.notes.filter((note) => note.categoryId === categoryId);
+        ? database.notes
+        : database.notes.filter((note) => note.categoryId === categoryId);
 
     if (filterTag !== "all") {
-      notes = notes.filter((note) => note.tags.includes(filterTag));
+        notes = notes.filter((note) => note.tags.includes(filterTag));
     }
 
     notesList.innerHTML = notes
-      .map(
-        (note) => `
-      <li data-note-id="${note.id}" onclick="renderNoteEditor('${note.id}')">
-        <span>${note.title}</span>
-        <button onclick="deleteNote('${note.id}'); event.stopPropagation();">删除</button>
-      </li>
-    `
-      )
-      .join("");
-  }
+        .map(
+            (note) => `
+        <li data-note-id="${note.id}" onclick="renderNoteEditor('${note.id}')">
+            <span>${note.title}</span>
+            <button onclick="deleteNote('${note.id}'); event.stopPropagation();">删除</button>
+        </li>
+        `
+        )
+        .join("");
+    }
+
 
   
-  function renderTags() {
-    const filterTags = document.getElementById("filter-tags");
-    const allTags = [...new Set(database.notes.flatMap((note) => note.tags))];
-    filterTags.innerHTML = `
-      <option value="all">全部标签</option>
-      ${allTags.map((tag) => `<option value="${tag}">${tag}</option>`).join("")}
-    `;
-  }
+    function renderTags() {
+      const filterTags = document.getElementById("filter-tags");
+      const allTags = [...new Set(database.notes.flatMap((note) => note.tags))];
+      filterTags.innerHTML = `
+          <option value="all">全部标签</option>
+          ${allTags.map((tag) => `<option value="${tag}">${tag}</option>`).join("")}
+      `;
+    }
+  
   
   
   
@@ -259,27 +261,29 @@ const database = {
       const title = document.getElementById("note-title").value.trim();
       const content = document.getElementById("note-content").value.trim();
       const tagsInput = document.getElementById("note-tags").value.trim();
-    
+  
       if (!title) {
-        alert("笔记标题不能为空！");
-        return;
+          alert("笔记标题不能为空！");
+          return;
       }
-    
+  
       const tags = tagsInput ? tagsInput.split(",").map((tag) => tag.trim()) : [];
-    
-      const note = database.notes.find((n) => n.id === selectedNoteId); // 查找正在编辑的笔记
+  
+      const note = database.notes.find((n) => n.id === selectedNoteId);
       if (note) {
-        note.title = title;
-        note.content = content;
-        note.tags = tags;
-        note.lastModified = new Date().toISOString().split("T")[0];
+          note.title = title;
+          note.content = content;
+          note.tags = tags;
+          note.lastModified = new Date().toISOString().split("T")[0];
       } else {
-        alert("未找到选中的笔记，保存失败！");
+          alert("未找到选中的笔记，保存失败！");
       }
-    
+  
       saveDatabase();
-      renderNotes(currentCategoryId); // 更新列表
+      renderNotes(currentCategoryId);
+      renderTags(); // 更新标签下拉列表
     }
+  
     
     
 
@@ -301,3 +305,8 @@ const database = {
   document.getElementById("add-category").addEventListener("click", addCategory);
   document.getElementById("new-note").addEventListener("click", addNote);
   document.getElementById("save-note").addEventListener("click", saveNote);
+  
+  // 添加按标签筛选的事件监听器
+  document.getElementById("filter-tags").addEventListener("change", () => {
+    renderNotes(currentCategoryId);
+  });
