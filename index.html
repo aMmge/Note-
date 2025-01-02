@@ -10,6 +10,17 @@
     <div class="container">
         <!-- Sidebar for categories -->
         <div class="sidebar">
+
+            <!-- <div class="theme-switcher">
+                <button id="toggle-night-mode">夜间模式</button>
+                <select id="theme-selector">
+                    <option value="default">默认主题</option>
+                    <option value="dark">夜间模式</option>
+                    <option value="custom">自定义主题</option>
+                </select>
+            </div>
+             -->
+
             <h2>笔记分类</h2>
             <ul id="category-list">
                 <li data-category="all">全部笔记</li>
@@ -51,6 +62,7 @@
                 <h4>标签</h4>
                 <input type="text" id="note-tags" placeholder="添加标签 (用逗号分隔)">
                 <p>已有标签: <span id="current-tags"></span></p>
+                <div id="tags-container"></div> <!-- 新增的标签容器 -->
             </div>
             <p>最后修改时间: <span id="last-modified">无</span></p>
             <button id="save-note">保存笔记</button>

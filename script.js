@@ -229,6 +229,17 @@ function renderNoteEditor(noteId) {
   document.getElementById("note-content").value = note.content;
   document.getElementById("note-tags").value = note.tags.join(", ");
   document.getElementById("last-modified").innerText = note.lastModified;
+
+  // 渲染标签
+  renderTags(note.tags);
+}
+
+// 渲染标签
+function renderTags(tags) {
+  const tagsContainer = document.getElementById("tags-container");
+  tagsContainer.innerHTML = tags.map(tag => 
+      `<div class="tag">${tag}</div>`
+  ).join("");
 }
 
 // 保存笔记
@@ -256,7 +267,9 @@ function saveNote() {
 
   saveDatabase();
   renderNotes(currentCategoryId);
+  renderTags(tags); // 保存后重新渲染标签
 }
+
 
 // 实现笔记过滤
 let currentCategoryId = "all"; // 当前选中的分类
@@ -315,12 +328,60 @@ document.getElementById("search-input").addEventListener("keyup", (event) => {
 });
 
 
+// // 绑定夜间模式切换按钮
+// document.getElementById("toggle-night-mode").addEventListener("click", () => {
+//   document.body.classList.toggle("dark-mode");
+//   document.body.classList.remove("custom-mode");
+//   saveThemePreference(); // 保存主题偏好到 localStorage
+// });
+
+// // 绑定主题选择下拉框
+// document.getElementById("theme-selector").addEventListener("change", (event) => {
+//   const selectedTheme = event.target.value;
+
+//   document.body.className = ""; // 清空现有主题
+//   if (selectedTheme === "dark") {
+//       document.body.classList.add("dark-mode");
+//   } else if (selectedTheme === "custom") {
+//       document.body.classList.add("custom-mode");
+//   }
+//   saveThemePreference(); // 保存主题偏好
+// });
+
+// // 保存主题偏好到 localStorage
+// function saveThemePreference() {
+//   const theme = document.body.className;
+//   localStorage.setItem("theme", theme);
+// }
+
+// // 从 localStorage 加载主题偏好
+// function loadThemePreference() {
+//   const savedTheme = localStorage.getItem("theme");
+//   if (savedTheme) {
+//       document.body.className = savedTheme;
+//   }
+// }
+
+// // 页面加载时初始化主题
+// loadThemePreference();
+
+
+
+
 
 
 // 初始化
 initDatabase();
 renderCategories();
 renderNotes();
+
+// 如果有选中的笔记，渲染其标签
+if (selectedNoteId) {
+  const note = database.notes.find((n) => n.id === selectedNoteId);
+  if (note) {
+      renderTags(note.tags);
+  }
+}
 
 // 绑定事件
 document.getElementById("add-category").addEventListener("click", addCategory);
