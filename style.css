@@ -173,7 +173,7 @@ body {
     background: #e0a800;
 }
 
-.filter {
+/* .filter {
     margin-bottom: 15px;
 }
 
@@ -188,4 +188,30 @@ body {
     border: 1px solid #ddd;
     border-radius: 4px;
     background: #fff;
+} */
+
+.search-bar {
+    display: flex;
+    margin-bottom: 10px;
+}
+
+#search-input {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+#search-btn {
+    padding: 8px 12px;
+    margin-left: 10px;
+    background: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#search-btn:hover {
+    background: #0056b3;
 }
