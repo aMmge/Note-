@@ -18,7 +18,6 @@ function initDatabase() {
               note.tags = []; // 初始化 tags 字段为空数组
           }
       });
-
   } else {
       // 如果没有存储数据，初始化默认数据
       database.categories = [
@@ -33,8 +32,8 @@ function initDatabase() {
               content: "这是一个示例笔记内容",
               lastModified: new Date().toISOString().split("T")[0],
               categoryId: "default",
-              tags: ["示例", "测试"]
-          }
+              tags: ["示例", "测试"],
+          },
       ];
       saveDatabase();
   }
@@ -61,16 +60,16 @@ function renderCategories() {
   categoryList.innerHTML = database.categories
       .map(
           (category) => `
-      <li data-category-id="${category.id}" onclick="filterNotes('${category.id}')">
-        <span>${category.name}</span>
-        ${
+    <li data-category-id="${category.id}" onclick="filterNotes('${category.id}')">
+      <span>${category.name}</span>
+      ${
               category.id !== "default"
                   ? `<button class="edit-category-btn" onclick="editCategory('${category.id}'); event.stopPropagation();">编辑</button>
-               <button class="delete-category-btn" onclick="deleteCategory('${category.id}'); event.stopPropagation();">删除</button>`
+             <button class="delete-category-btn" onclick="deleteCategory('${category.id}'); event.stopPropagation();">删除</button>`
                   : ""
           }
-      </li>
-    `
+    </li>
+  `
       )
       .join("");
 }
@@ -86,13 +85,20 @@ function renderNotes(categoryId = "default") {
   notesList.innerHTML = notes
       .map(
           (note) => `
-      <li data-note-id="${note.id}" onclick="renderNoteEditor('${note.id}')">
-          <span>${note.title}</span>
-          <button onclick="deleteNote('${note.id}'); event.stopPropagation();">删除</button>
-      </li>
-      `
+    <li data-note-id="${note.id}" onclick="renderNoteEditor('${note.id}')">
+        <span>${note.title}</span>
+        <button onclick="deleteNote('${note.id}'); event.stopPropagation();">删除</button>
+    </li>
+  `
       )
       .join("");
+}
+
+
+// 工具函数：去除 HTML 标签
+function stripHtmlTags(html) {
+  const doc = new DOMParser().parseFromString(html, "text/html");
+  return doc.body.textContent || "";
 }
 
 // 添加新分类
@@ -168,7 +174,7 @@ function addNote() {
       content: "",
       lastModified: new Date().toISOString().split("T")[0],
       categoryId,
-      tags: [] // 初始化 tags 字段为空数组
+      tags: [], // 初始化 tags 字段为空数组
   };
 
   database.notes.push(newNote);
@@ -181,6 +187,7 @@ function addNote() {
 
   saveDatabase();
   renderNotes(categoryId); // 重新渲染当前分类下的笔记
+  renderNoteEditor(newNote.id); // 打开新建笔记的编辑器
 }
 
 // 删除笔记
@@ -224,28 +231,24 @@ function renderNoteEditor(noteId) {
   const note = database.notes.find((note) => note.id === noteId);
   if (!note) return;
 
-  selectedNoteId = noteId; // 确保设置 selectedNoteId
+  selectedNoteId = noteId;
   document.getElementById("note-title").value = note.title;
-  document.getElementById("note-content").value = note.content;
+  quill.root.innerHTML = note.content; // 将 HTML 内容加载到 Quill 编辑器
   document.getElementById("note-tags").value = note.tags.join(", ");
   document.getElementById("last-modified").innerText = note.lastModified;
-
-  // 渲染标签
   renderTags(note.tags);
 }
 
 // 渲染标签
 function renderTags(tags) {
   const tagsContainer = document.getElementById("tags-container");
-  tagsContainer.innerHTML = tags.map(tag => 
-      `<div class="tag">${tag}</div>`
-  ).join("");
+  tagsContainer.innerHTML = tags.map((tag) => `<div class="tag">${tag}</div>`).join("");
 }
 
 // 保存笔记
 function saveNote() {
   const title = document.getElementById("note-title").value.trim();
-  const content = document.getElementById("note-content").value.trim();
+  const content = quill.root.innerHTML; // 获取 Quill 编辑器的 HTML 内容
   const tagsInput = document.getElementById("note-tags").value.trim();
 
   if (!title) {
@@ -258,7 +261,7 @@ function saveNote() {
   const note = database.notes.find((n) => n.id === selectedNoteId);
   if (note) {
       note.title = title;
-      note.content = content;
+      note.content = content; // 存储为 HTML 格式
       note.tags = tags;
       note.lastModified = new Date().toISOString().split("T")[0];
   } else {
@@ -269,7 +272,6 @@ function saveNote() {
   renderNotes(currentCategoryId);
   renderTags(tags); // 保存后重新渲染标签
 }
-
 
 // 实现笔记过滤
 let currentCategoryId = "all"; // 当前选中的分类
@@ -291,19 +293,24 @@ function searchNotes() {
   }
 
   // 搜索笔记：标题、内容和标签匹配
-  const filteredNotes = database.notes.filter(note => 
-      note.title.toLowerCase().includes(searchInput) ||
-      note.content.toLowerCase().includes(searchInput) ||
-      note.tags.some(tag => tag.toLowerCase().includes(searchInput))
+  const filteredNotes = database.notes.filter(
+      (note) =>
+          note.title.toLowerCase().includes(searchInput) ||
+          note.content.toLowerCase().includes(searchInput) ||
+          note.tags.some((tag) => tag.toLowerCase().includes(searchInput))
   );
 
   // 渲染搜索结果，带关键词高亮
-  notesList.innerHTML = filteredNotes.map(note => `
-      <li data-note-id="${note.id}" onclick="renderNoteEditor('${note.id}')">
-          <span>${highlightKeyword(note.title, searchInput)}</span>
-          <button onclick="deleteNote('${note.id}'); event.stopPropagation();">删除</button>
-      </li>
-  `).join("");
+  notesList.innerHTML = filteredNotes
+      .map(
+          (note) => `
+    <li data-note-id="${note.id}" onclick="renderNoteEditor('${note.id}')">
+        <span>${highlightKeyword(note.title, searchInput)}</span>
+        <button onclick="deleteNote('${note.id}'); event.stopPropagation();">删除</button>
+    </li>
+  `
+      )
+      .join("");
 
   // 如果没有匹配结果
   if (filteredNotes.length === 0) {
@@ -313,8 +320,8 @@ function searchNotes() {
 
 // 工具函数：高亮显示关键词
 function highlightKeyword(text, keyword) {
-  const regex = new RegExp(`(${keyword})`, 'gi'); // 匹配关键词，忽略大小写
-  return text.replace(regex, '<mark>$1</mark>'); // 使用 <mark> 标签高亮
+  const regex = new RegExp(`(${keyword})`, "gi"); // 匹配关键词，忽略大小写
+  return text.replace(regex, "<mark>$1</mark>"); // 使用 <mark> 标签高亮
 }
 
 // 绑定搜索事件
@@ -327,61 +334,25 @@ document.getElementById("search-input").addEventListener("keyup", (event) => {
   }
 });
 
-
-// // 绑定夜间模式切换按钮
-// document.getElementById("toggle-night-mode").addEventListener("click", () => {
-//   document.body.classList.toggle("dark-mode");
-//   document.body.classList.remove("custom-mode");
-//   saveThemePreference(); // 保存主题偏好到 localStorage
-// });
-
-// // 绑定主题选择下拉框
-// document.getElementById("theme-selector").addEventListener("change", (event) => {
-//   const selectedTheme = event.target.value;
-
-//   document.body.className = ""; // 清空现有主题
-//   if (selectedTheme === "dark") {
-//       document.body.classList.add("dark-mode");
-//   } else if (selectedTheme === "custom") {
-//       document.body.classList.add("custom-mode");
-//   }
-//   saveThemePreference(); // 保存主题偏好
-// });
-
-// // 保存主题偏好到 localStorage
-// function saveThemePreference() {
-//   const theme = document.body.className;
-//   localStorage.setItem("theme", theme);
-// }
-
-// // 从 localStorage 加载主题偏好
-// function loadThemePreference() {
-//   const savedTheme = localStorage.getItem("theme");
-//   if (savedTheme) {
-//       document.body.className = savedTheme;
-//   }
-// }
-
-// // 页面加载时初始化主题
-// loadThemePreference();
-
-
-
-
-
-
 // 初始化
 initDatabase();
 renderCategories();
 renderNotes();
 
-// 如果有选中的笔记，渲染其标签
-if (selectedNoteId) {
-  const note = database.notes.find((n) => n.id === selectedNoteId);
-  if (note) {
-      renderTags(note.tags);
-  }
-}
+// 初始化 Quill 编辑器
+const quill = new Quill("#note-content-editor", {
+  theme: "snow", // 使用 snow 主题
+  modules: {
+      toolbar: [
+          [{ header: [1, 2, 3, false] }], // 标题
+          ["bold", "italic", "underline", "strike"], // 加粗、斜体、下划线、删除线
+          [{ list: "ordered" }, { list: "bullet" }], // 有序列表、无序列表
+          ["link", "table"], // 链接、表格
+          [{ color: [] }, { background: [] }], // 字体颜色、背景颜色
+          ["clean"], // 清除格式
+      ],
+  },
+});
 
 // 绑定事件
 document.getElementById("add-category").addEventListener("click", addCategory);
