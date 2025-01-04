@@ -233,11 +233,20 @@ function renderNoteEditor(noteId) {
 
   selectedNoteId = noteId;
   document.getElementById("note-title").value = note.title;
-  quill.root.innerHTML = note.content; // 将 HTML 内容加载到 Quill 编辑器
   document.getElementById("note-tags").value = note.tags.join(", ");
   document.getElementById("last-modified").innerText = note.lastModified;
   renderTags(note.tags);
+
+  if (isMarkdownMode) {
+      // 加载到 Markdown 编辑器
+      document.getElementById("markdown-input").value = stripHtmlTags(note.content);
+      updateMarkdownPreview();
+  } else {
+      // 加载到富文本编辑器
+      quill.root.innerHTML = note.content;
+  }
 }
+
 
 // 渲染标签
 function renderTags(tags) {
@@ -248,7 +257,6 @@ function renderTags(tags) {
 // 保存笔记
 function saveNote() {
   const title = document.getElementById("note-title").value.trim();
-  const content = quill.root.innerHTML; // 获取 Quill 编辑器的 HTML 内容
   const tagsInput = document.getElementById("note-tags").value.trim();
 
   if (!title) {
@@ -261,17 +269,25 @@ function saveNote() {
   const note = database.notes.find((n) => n.id === selectedNoteId);
   if (note) {
       note.title = title;
-      note.content = content; // 存储为 HTML 格式
       note.tags = tags;
       note.lastModified = new Date().toISOString().split("T")[0];
+
+      if (isMarkdownMode) {
+          // 保存 Markdown 内容
+          note.content = document.getElementById("markdown-input").value;
+      } else {
+          // 保存富文本内容
+          note.content = quill.root.innerHTML;
+      }
   } else {
       alert("未找到选中的笔记，保存失败！");
   }
 
   saveDatabase();
   renderNotes(currentCategoryId);
-  renderTags(tags); // 保存后重新渲染标签
+  renderTags(tags);
 }
+
 
 // 实现笔记过滤
 let currentCategoryId = "all"; // 当前选中的分类
@@ -333,6 +349,70 @@ document.getElementById("search-input").addEventListener("keyup", (event) => {
       searchNotes();
   }
 });
+
+
+
+let isMarkdownMode = false; // 当前是否为 Markdown 模式
+
+// 切换 Markdown 模式
+function toggleMarkdownMode() {
+  const markdownEditor = document.getElementById("markdown-editor");
+  const quillEditor = document.getElementById("note-content-editor");
+  const quillToolbar = document.querySelector(".ql-toolbar.ql-snow"); // 获取工具栏
+  const toggleButton = document.getElementById("toggle-markdown");
+
+  if (isMarkdownMode) {
+      // 切换到富文本编辑器
+      markdownEditor.style.display = "none";
+      quillEditor.style.display = "block";
+      quillToolbar.style.display = "block"; // 显示工具栏
+      toggleButton.textContent = "切换到 Markdown 编辑";
+  } else {
+      // 切换到 Markdown 编辑器
+      markdownEditor.style.display = "block";
+      quillEditor.style.display = "none";
+      quillToolbar.style.display = "none"; // 隐藏工具栏
+      toggleButton.textContent = "切换到富文本编辑";
+
+      // 如果当前有选中的笔记，将内容同步到 Markdown 编辑器
+      if (selectedNoteId) {
+          const note = database.notes.find((n) => n.id === selectedNoteId);
+          if (note) {
+              document.getElementById("markdown-input").value = stripHtmlTags(note.content);
+              updateMarkdownPreview();
+          }
+      }
+  }
+
+  isMarkdownMode = !isMarkdownMode;
+}
+
+
+//markdown-preview 的高度根据内容动态调整
+function adjustMarkdownPreviewHeight() {
+  const markdownPreview = document.getElementById("markdown-preview");
+  const contentHeight = markdownPreview.scrollHeight; // 获取内容高度
+  const maxHeight = 200; // 最大高度
+  markdownPreview.style.height = `${Math.min(contentHeight, maxHeight)}px`; // 动态设置高度
+}
+
+
+
+// 更新 Markdown 预览
+function updateMarkdownPreview() {
+    const markdownInput = document.getElementById("markdown-input").value;
+    const markdownPreview = document.getElementById("markdown-preview");
+    markdownPreview.innerHTML = marked.parse(markdownInput);
+    adjustMarkdownPreviewHeight(); // 动态调整高度
+}
+
+// 绑定 Markdown 输入事件
+document.getElementById("markdown-input").addEventListener("input", updateMarkdownPreview);
+
+// 绑定切换按钮事件
+document.getElementById("toggle-markdown").addEventListener("click", toggleMarkdownMode);
+
+
 
 // 初始化
 initDatabase();
