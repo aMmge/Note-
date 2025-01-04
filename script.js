@@ -56,23 +56,24 @@ function generateId(prefix = "id") {
 
 // 渲染分类
 function renderCategories() {
-  const categoryList = document.getElementById("category-list");
-  categoryList.innerHTML = database.categories
-      .map(
-          (category) => `
-    <li data-category-id="${category.id}" onclick="filterNotes('${category.id}')">
-      <span>${category.name}</span>
-      ${
-              category.id !== "default"
-                  ? `<button class="edit-category-btn" onclick="editCategory('${category.id}'); event.stopPropagation();">编辑</button>
-             <button class="delete-category-btn" onclick="deleteCategory('${category.id}'); event.stopPropagation();">删除</button>`
-                  : ""
-          }
-    </li>
-  `
-      )
-      .join("");
-}
+    const categoryList = document.getElementById("category-list");
+    categoryList.innerHTML = database.categories
+        .map(
+            (category) => `
+      <li data-category-id="${category.id}" onclick="filterNotes('${category.id}')">
+        <span>${category.name} (${category.notes.length})</span>
+        ${
+                category.id !== "default"
+                    ? `<button class="edit-category-btn" onclick="editCategory('${category.id}'); event.stopPropagation();">编辑</button>
+               <button class="delete-category-btn" onclick="deleteCategory('${category.id}'); event.stopPropagation();">删除</button>`
+                    : ""
+            }
+      </li>
+    `
+        )
+        .join("");
+  }
+  
 
 // 渲染笔记列表
 function renderNotes(categoryId = "default") {
@@ -166,28 +167,29 @@ function deleteCategory(categoryId) {
 
 // 添加新笔记
 function addNote() {
-  const categoryId = currentCategoryId === "all" ? "default" : currentCategoryId;
-
-  const newNote = {
-      id: generateId("note"),
-      title: "新建笔记",
-      content: "",
-      lastModified: new Date().toISOString().split("T")[0],
-      categoryId,
-      tags: [], // 初始化 tags 字段为空数组
-  };
-
-  database.notes.push(newNote);
-
-  // 将新笔记 ID 添加到对应分类的 notes 数组中
-  const category = database.categories.find((cat) => cat.id === categoryId);
-  if (category) {
-      category.notes.push(newNote.id);
-  }
-
-  saveDatabase();
-  renderNotes(categoryId); // 重新渲染当前分类下的笔记
-  renderNoteEditor(newNote.id); // 打开新建笔记的编辑器
+    const categoryId = currentCategoryId === "all" ? "default" : currentCategoryId;
+  
+    const newNote = {
+        id: generateId("note"),
+        title: "新建笔记",
+        content: "",
+        lastModified: new Date().toISOString().split("T")[0],
+        categoryId,
+        tags: [], // 初始化 tags 字段为空数组
+        viewCount: 0, // 初始化查看次数为 0
+    };
+  
+    database.notes.push(newNote);
+  
+    // 将新笔记 ID 添加到对应分类的 notes 数组中
+    const category = database.categories.find((cat) => cat.id === categoryId);
+    if (category) {
+        category.notes.push(newNote.id);
+    }
+  
+    saveDatabase();
+    renderNotes(categoryId); // 重新渲染当前分类下的笔记
+    renderNoteEditor(newNote.id); // 打开新建笔记的编辑器
 }
 
 // 删除笔记
@@ -228,23 +230,27 @@ let selectedNoteId = null; // 当前选中的笔记 ID
 
 // 渲染选中笔记到编辑器
 function renderNoteEditor(noteId) {
-  const note = database.notes.find((note) => note.id === noteId);
-  if (!note) return;
-
-  selectedNoteId = noteId;
-  document.getElementById("note-title").value = note.title;
-  document.getElementById("note-tags").value = note.tags.join(", ");
-  document.getElementById("last-modified").innerText = note.lastModified;
-  renderTags(note.tags);
-
-  if (isMarkdownMode) {
-      // 加载到 Markdown 编辑器
-      document.getElementById("markdown-input").value = stripHtmlTags(note.content);
-      updateMarkdownPreview();
-  } else {
-      // 加载到富文本编辑器
-      quill.root.innerHTML = note.content;
-  }
+    const note = database.notes.find((note) => note.id === noteId);
+    if (!note) return;
+  
+    selectedNoteId = noteId;
+    document.getElementById("note-title").value = note.title;
+    document.getElementById("note-tags").value = note.tags.join(", ");
+    document.getElementById("last-modified").innerText = note.lastModified;
+    renderTags(note.tags);
+  
+    // 增加查看次数
+    note.viewCount = (note.viewCount || 0) + 1;
+    saveDatabase();
+  
+    if (isMarkdownMode) {
+        // 加载到 Markdown 编辑器
+        document.getElementById("markdown-input").value = stripHtmlTags(note.content);
+        updateMarkdownPreview();
+    } else {
+        // 加载到富文本编辑器
+        quill.root.innerHTML = note.content;
+    }
 }
 
 
@@ -412,12 +418,85 @@ document.getElementById("markdown-input").addEventListener("input", updateMarkdo
 // 绑定切换按钮事件
 document.getElementById("toggle-markdown").addEventListener("click", toggleMarkdownMode);
 
+//渲染图表
+function renderStatistics() {
+    const ctx = document.getElementById('noteStatisticsChart').getContext('2d');
+
+    // 设置Canvas的实际尺寸
+    const canvas = document.getElementById('noteStatisticsChart');
+    canvas.width = 800;  // 设置为你希望的固定宽度
+    canvas.height = 500; // 设置为你希望的固定高度
+
+    // 先清空之前的图表
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+    // 统计每个分类下的笔记数量
+    const categories = database.categories.map(cat => cat.name);
+    const noteCounts = database.categories.map(cat => cat.notes.length);
+
+    // 统计笔记的查看次数
+    const viewCounts = database.notes.map(note => note.viewCount || 0);
+
+    const chart = new Chart(ctx, {
+        type: 'bar', // 使用柱状图
+        data: {
+            labels: categories,
+            datasets: [{
+                label: '笔记数量',
+                data: noteCounts,
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }, {
+                label: '查看次数',
+                data: viewCounts,
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                borderColor: 'rgba(255, 99, 132, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: false, // 使图表响应式
+            maintainAspectRatio: false, // 让图表根据容器大小调整
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+    
+}
+
+  
+// 绑定图片点击事件
+document.getElementById('show-chart').addEventListener('click', function() {
+    // 显示弹窗
+    document.getElementById('chart-modal').style.display = 'block';
+    
+    // 每次打开时渲染图表
+    renderStatistics();
+});
+
+// 绑定关闭弹窗事件
+document.getElementById('close-modal').addEventListener('click', function() {
+    document.getElementById('chart-modal').style.display = 'none';
+});
+
+// 关闭弹窗时点击外部也关闭
+window.onclick = function(event) {
+    const modal = document.getElementById('chart-modal');
+    if (event.target === modal) {
+        modal.style.display = "none";
+    }
+};
 
 
 // 初始化
 initDatabase();
 renderCategories();
 renderNotes();
+renderStatistics(); // 渲染统计图表
 
 // 初始化 Quill 编辑器
 const quill = new Quill("#note-content-editor", {

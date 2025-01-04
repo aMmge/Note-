@@ -248,3 +248,44 @@ body {
     max-height: 400px; /* 设置最大高度 */
     overflow-y: auto; /* 启用垂直滚动条 */
 }
+
+.modal {
+    display: none; /* 隐藏弹窗 */
+    position: fixed; /* 固定定位 */
+    z-index: 1; /* 上层显示 */
+    left: 0;
+    top: 0;
+    width: 100%; /* 全屏 */
+    overflow: auto; /* 滚动条 */
+    background-color: rgba(0, 0, 0, 0.4); /* 半透明背景 */
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 5% auto; /* 中央定位并稍微减少上下的间距 */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 60%; /* 宽度 */
+    max-height: 80vh; /* 使用更大的最大高度 */
+    overflow: auto; /* 允许滚动 */
+    border-radius: 10px; /* 添加圆角 */
+}
+
+
+.close-modal {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close-modal:hover,
+.close-modal:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+#noteStatisticsChart {
+    margin-left: 25px;
+}

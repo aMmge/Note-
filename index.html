@@ -23,7 +23,16 @@
 
         <!-- Notes list -->
         <div class="note-list">
-            <h2>全部笔记</h2>
+            <h2>全部笔记<img src="chart.png" id="show-chart" style="cursor: pointer; width: 20px; margin-left: 10px;" alt="显示图表"></h2>
+
+            <!-- 弹窗结构 -->
+            <div id="chart-modal" class="modal" style="display: none;">
+                <div class="modal-content">
+                    <h2>笔记统计</h2>
+                    <span class="close-modal" id="close-modal">&times;</span>
+                    <canvas id="noteStatisticsChart"></canvas>
+                </div>
+            </div>
 
             <!-- 搜索框 -->
             <div class="search-bar">
@@ -43,6 +52,7 @@
                 <!-- Dynamic Notes List -->
             </ul>
             <button id="new-note">新建笔记</button>
+
         </div>
 
         <!-- Note editor -->
@@ -72,6 +82,8 @@
     <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
     <!-- marked.js 库来解析 Markdown 文本 -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- 使用 Chart.js 库来生成图表 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script src="script.js"></script>
 </body>
