@@ -492,6 +492,69 @@ window.onclick = function(event) {
 };
 
 
+// 生成分享链接
+function generateShareLink() {
+    if (selectedNoteId) {
+        const shareLink = `${window.location.origin}/note.html?id=${selectedNoteId}`;
+        alert(`分享链接已生成: ${shareLink}`);
+    } else {
+        alert("请先选择一个笔记。");
+    }
+}
+
+// 导出笔记为 markdown 格式
+function exportToMarkdown() {
+    const note = database.notes.find((n) => n.id === selectedNoteId);
+    if (!note) {
+        alert("未找到选中的笔记，导出失败！");
+        return;
+    }
+
+    const markdownContent = `# ${note.title}\n\n${note.content}`;
+    const blob = new Blob([markdownContent], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${note.title}.md`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url); // 释放URL对象
+}
+
+// 导出笔记为 PDF 格式
+function exportToPDF() {
+    const note = database.notes.find((n) => n.id === selectedNoteId);
+    if (!note) {
+        alert("未找到选中的笔记，导出失败！");
+        return;
+    }
+
+    const pdfContent = `<h1>${note.title}</h1><div>${note.content}</div>`;
+    
+    const pdfWindow = window.open('', '_blank');
+    pdfWindow.document.write('<html><head><title>' + note.title + '</title></head><body>');
+    pdfWindow.document.write(pdfContent);
+    pdfWindow.document.write('</body></html>');
+    pdfWindow.document.close();
+    pdfWindow.print(); // 调用打印功能以导出为 PDF
+}
+
+// 绑定图标点击事件
+document.getElementById("share-note").addEventListener("click", generateShareLink);
+document.getElementById("export-note").addEventListener("click", exportToMarkdown);
+
+
+
+
+
+
+
+
+
+
+
 // 初始化
 initDatabase();
 renderCategories();

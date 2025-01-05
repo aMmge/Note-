@@ -289,3 +289,14 @@ body {
 #noteStatisticsChart {
     margin-left: 25px;
 }
+
+.icon-button {
+    transition: opacity 0.3s ease;
+    cursor: pointer;
+    width: 20px;
+    margin-left: 10px;
+}
+
+.icon-button:hover {
+    opacity: 0.8;
+}
