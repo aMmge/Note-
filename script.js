@@ -35,6 +35,12 @@ function initDatabase() {
               tags: ["示例", "测试"],
           },
       ];
+
+      // 保存到 localStorage
+      database.notes.forEach((note) => {
+        saveNoteToLocalStorage(note); // 每个笔记都存储
+    });      
+
       saveDatabase();
   }
 
@@ -492,7 +498,41 @@ window.onclick = function(event) {
 };
 
 
-// 生成分享链接
+
+// 保存数据到 localStorage
+function saveDatabase() {
+    console.log("保存数据到 localStorage:", database); // 调试日志，检查保存的数据
+    localStorage.setItem("noteAppData", JSON.stringify(database));
+  }
+  
+  // 获取分享链接中的 noteId 参数
+  const urlParams = new URLSearchParams(window.location.search);
+  const noteId = urlParams.get('id');
+  
+  // 从 localStorage 获取数据
+  const storedData = localStorage.getItem('noteAppData');
+  console.log("从 localStorage 获取到的笔记数据:", storedData); // 调试日志
+  
+  if (storedData) {
+    Object.assign(database, JSON.parse(storedData)); // 这里不再重新声明 `database`
+  }
+  
+  if (noteId) {
+      // 查找笔记
+      const note = database.notes.find(n => n.id === noteId);
+  
+      if (note) {
+          // 如果找到笔记，显示标题和内容
+          document.getElementById('note-title').innerText = note.title;
+          quill.root.innerHTML = note.content; // 使用 Quill 设置内容
+      } else {
+          document.getElementById('note-title').innerText = '笔记未找到';
+      }
+  } else {
+      document.getElementById('note-title').innerText = '无效的分享链接';
+  }
+
+
 function generateShareLink() {
     if (selectedNoteId) {
         const shareLink = `${window.location.origin}/note.html?id=${selectedNoteId}`;
@@ -501,6 +541,9 @@ function generateShareLink() {
         alert("请先选择一个笔记。");
     }
 }
+
+
+
 
 // 导出笔记为 markdown 格式
 function exportToMarkdown() {
@@ -523,32 +566,10 @@ function exportToMarkdown() {
     URL.revokeObjectURL(url); // 释放URL对象
 }
 
-// 导出笔记为 PDF 格式
-function exportToPDF() {
-    const note = database.notes.find((n) => n.id === selectedNoteId);
-    if (!note) {
-        alert("未找到选中的笔记，导出失败！");
-        return;
-    }
-
-    const pdfContent = `<h1>${note.title}</h1><div>${note.content}</div>`;
-    
-    const pdfWindow = window.open('', '_blank');
-    pdfWindow.document.write('<html><head><title>' + note.title + '</title></head><body>');
-    pdfWindow.document.write(pdfContent);
-    pdfWindow.document.write('</body></html>');
-    pdfWindow.document.close();
-    pdfWindow.print(); // 调用打印功能以导出为 PDF
-}
 
 // 绑定图标点击事件
 document.getElementById("share-note").addEventListener("click", generateShareLink);
 document.getElementById("export-note").addEventListener("click", exportToMarkdown);
-
-
-
-
-
 
 
 

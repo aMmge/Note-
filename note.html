@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>笔记详情</title>
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+</head>
+<body>
+    <div>
+        <h1 id="note-title">加载中...</h1>
+        <div id="note-content"></div>
+    </div>
+
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // 获取 URL 中的 id 参数
+            const urlParams = new URLSearchParams(window.location.search);
+            const noteId = urlParams.get('id');
+            
+            console.log("分享链接的笔记 ID:", noteId); // 打印 noteId 以便调试
+
+            if (noteId) {
+                // 从 localStorage 获取笔记
+                const noteData = localStorage.getItem(noteId);
+                console.log("从 localStorage 获取到的笔记数据:", noteData); // 打印数据
+
+                if (noteData) {
+                    const note = JSON.parse(noteData);
+                    document.getElementById("note-title").innerText = note.title;
+
+                    // 初始化 Quill 编辑器（只读模式）
+                    const quillContainer = document.getElementById("note-content");
+                    const quill = new Quill(quillContainer, {
+                        theme: 'snow',
+                        readOnly: true,  // 设置为只读
+                        modules: {
+                            toolbar: false // 不显示工具栏
+                        }
+                    });
+                    quill.root.innerHTML = note.content;
+                } else {
+                    // 如果没有找到笔记，显示“笔记未找到”
+                    document.getElementById("note-title").innerText = "笔记未找到";
+                }
+            } else {
+                // 如果 URL 中没有 id 参数，显示错误信息
+                document.getElementById("note-title").innerText = "没有指定笔记 ID";
+            }
+        });
+
+    </script>
+</body>
+</html>
