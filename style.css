@@ -271,7 +271,6 @@ body {
     border-radius: 10px; /* 添加圆角 */
 }
 
-
 .close-modal {
     color: #aaa;
     float: right;
@@ -300,3 +299,61 @@ body {
 .icon-button:hover {
     opacity: 0.8;
 }
+
+/* 默认主题样式 */
+:root {
+    --background-color: #fff;
+    --text-color: #000;
+    --sidebar-background: #f7f7f7;
+    --note-background: #f9f9f9;
+}
+
+/* 夜间模式样式 */
+.dark-mode {
+    --background-color: #3f3e3e;
+    --text-color: #ffffff;
+    --sidebar-background: #3f3e3e;;
+    --note-background: #3f3e3e;;
+}
+
+/* 更新 body 和其他元素的背景色和文本颜色 */
+body {
+    background-color: var(--background-color);
+    color: var(--text-color);
+}
+
+.sidebar {
+    background: var(--sidebar-background);
+}
+
+.note-list {
+    background: var(--note-background);
+}
+
+#notes li {
+    background: var(--note-background);
+    color: var(--text-color);
+}
+
+#search-btn, #new-note, #add-category, #save-note {
+    background: #007bff; /* 这里可以保持一致 */
+    color: #fff;
+}
+
+.tag {
+    background-color: #e0f7ff; /* 这里也可以保持一致 */
+    color: var(--text-color); 
+}
+
+.note-editor {
+    padding: 20px;
+    background: var(--note-editor-background, #fff); /* 设置默认背景色 */
+    overflow: visible; /* 确保内容不会被截断 */
+}
+
+/* 夜间模式下的样式 */
+.dark-mode .note-editor {
+    background: #3f3e3e; /* 设置夜间模式的背景色 */
+    color: #ffffff; /* 设置文本颜色 */
+}
+

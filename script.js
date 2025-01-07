@@ -48,6 +48,23 @@ function initDatabase() {
   if (!database.categories.some((cat) => cat.id === "recentDeleted")) {
       database.categories.push({ id: "recentDeleted", name: "最近删除", notes: [] });
   }
+
+  // 检查 localStorage 是否有主题偏好设置
+  const savedTheme = localStorage.getItem("theme");
+  if (savedTheme === "dark") {
+      isDarkMode = true;
+      document.body.classList.add('dark-mode');
+  }
+}
+
+// 在切换主题时保存用户的选择
+function toggleTheme() {
+    isDarkMode = !isDarkMode;
+    const body = document.body;
+    body.classList.toggle('dark-mode', isDarkMode);
+
+    // 保存用户选择到 localStorage
+    localStorage.setItem("theme", isDarkMode ? "dark" : "light");
 }
 
 // 保存数据到 localStorage
@@ -543,8 +560,6 @@ function generateShareLink() {
 }
 
 
-
-
 // 导出笔记为 markdown 格式
 function exportToMarkdown() {
     const note = database.notes.find((n) => n.id === selectedNoteId);
@@ -566,11 +581,36 @@ function exportToMarkdown() {
     URL.revokeObjectURL(url); // 释放URL对象
 }
 
-
 // 绑定图标点击事件
 document.getElementById("share-note").addEventListener("click", generateShareLink);
 document.getElementById("export-note").addEventListener("click", exportToMarkdown);
 
+
+let isDarkMode = false;
+
+// 切换主题
+function toggleTheme() {
+    isDarkMode = !isDarkMode;
+    const body = document.body;
+    body.classList.toggle('dark-mode', isDarkMode);
+
+    // 这里可以遍历所有相关元素，确保它们的样式会被更新
+    document.querySelectorAll('.note-editor').forEach(editor => {
+        if (isDarkMode) {
+            editor.style.background = '#2a2a2a'; // 夜间模式背景
+            editor.style.color = '#ffffff'; // 夜间模式文字颜色
+        } else {
+            editor.style.background = '#fff'; // 默认背景
+            editor.style.color = '#000'; // 默认文字颜色
+        }
+    });
+
+    // 保存用户选择到 localStorage
+    localStorage.setItem("theme", isDarkMode ? "dark" : "light");
+}
+
+// 绑定切换主题按钮事件
+document.getElementById("toggle-theme").addEventListener("click", toggleTheme);
 
 
 
