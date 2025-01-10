@@ -1,14 +1,13 @@
-/* General styles */
 body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
     display: flex;
     justify-content: center;
-    align-items: flex-start; /* 改为 flex-start，避免内容被压缩 */
-    min-height: 100vh; /* 确保 body 至少有视口高度 */
+    align-items: flex-start; 
+    min-height: 100vh; 
     background-color: #f4f4f4;
-    overflow-y: auto; /* 启用页面滚动 */
+    overflow-y: auto; 
 }
 
 .container {
@@ -20,22 +19,38 @@ body {
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     overflow: hidden;
     margin-top: 20px;
-    margin-bottom: 20px; /* 添加底部间距 */
-    min-height: 95vh; /* 确保容器有最小高度 */
+    margin-bottom: 20px; 
+    min-height: 95vh; 
 }
 
 
-/* Sidebar styles */
 .sidebar {
     padding: 20px;
     background: #f7f7f7;
     border-right: 1px solid #ddd;
+    display: flex;
+    flex-direction: column; 
+    justify-content: space-between; 
 }
 
 .sidebar h2 {
     margin-top: 0;
     font-size: 20px;
 }
+
+.icon-container {
+    display: flex;
+    justify-content: center; 
+    margin-top: auto; 
+}
+
+.icon-container img {
+    margin: 0 10px; 
+    width: 20px; 
+    height: 20px; 
+    vertical-align: middle; 
+}
+
 
 #category-list {
     list-style-type: none;
@@ -92,7 +107,6 @@ body {
     background: #0056b3;
 }
 
-/* Notes list styles */
 .note-list {
     padding: 20px;
     background: #f9f9f9;
@@ -139,7 +153,7 @@ body {
 .note-editor {
     padding: 20px;
     background: #fff;
-    overflow: visible; /* 确保内容不会被截断 */
+    overflow: visible; 
 }
 
 .note-editor h2 {
@@ -213,10 +227,10 @@ body {
 }
 
 .tag {
-    background-color: #e0f7ff; /* 淡蓝色背景 */
-    color: #007bff; /* 蓝色文字 */
+    background-color: #e0f7ff; 
+    color: #007bff;
     padding: 5px 10px;
-    border-radius: 15px; /* 圆角 */
+    border-radius: 15px;
     font-size: 14px;
     display: inline-block;
     cursor: pointer;
@@ -245,30 +259,30 @@ body {
     margin-top: 10px;
     background: #f9f9f9;
     border-radius: 4px;
-    max-height: 400px; /* 设置最大高度 */
-    overflow-y: auto; /* 启用垂直滚动条 */
+    max-height: 400px; 
+    overflow-y: auto; 
 }
 
 .modal {
-    display: none; /* 隐藏弹窗 */
-    position: fixed; /* 固定定位 */
-    z-index: 1; /* 上层显示 */
+    display: none; 
+    position: fixed; 
+    z-index: 1; 
     left: 0;
     top: 0;
-    width: 100%; /* 全屏 */
-    overflow: auto; /* 滚动条 */
-    background-color: rgba(0, 0, 0, 0.4); /* 半透明背景 */
+    width: 100%; 
+    overflow: auto; 
+    background-color: rgba(0, 0, 0, 0.4); /
 }
 
 .modal-content {
     background-color: #fefefe;
-    margin: 5% auto; /* 中央定位并稍微减少上下的间距 */
+    margin: 5% auto; 
     padding: 20px;
     border: 1px solid #888;
-    width: 60%; /* 宽度 */
-    max-height: 80vh; /* 使用更大的最大高度 */
-    overflow: auto; /* 允许滚动 */
-    border-radius: 10px; /* 添加圆角 */
+    width: 60%; 
+    max-height: 80vh; 
+    overflow: auto; 
+    border-radius: 10px; 
 }
 
 .close-modal {
@@ -336,24 +350,30 @@ body {
 }
 
 #search-btn, #new-note, #add-category, #save-note {
-    background: #007bff; /* 这里可以保持一致 */
+    background: #007bff; 
     color: #fff;
 }
 
 .tag {
-    background-color: #e0f7ff; /* 这里也可以保持一致 */
+    background-color: #e0f7ff; 
     color: var(--text-color); 
 }
 
 .note-editor {
     padding: 20px;
-    background: var(--note-editor-background, #fff); /* 设置默认背景色 */
+    background: var(--note-editor-background, #fff);
     overflow: visible; /* 确保内容不会被截断 */
 }
 
 /* 夜间模式下的样式 */
 .dark-mode .note-editor {
-    background: #3f3e3e; /* 设置夜间模式的背景色 */
-    color: #ffffff; /* 设置文本颜色 */
+    background: #3f3e3e; 
+    color: #ffffff; 
 }
 
+#note-tags {
+    width: 200px; 
+    height: 25px; 
+    text-align: center; 
+    padding: 0; 
+}

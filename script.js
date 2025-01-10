@@ -253,25 +253,30 @@ let selectedNoteId = null; // 当前选中的笔记 ID
 
 // 渲染选中笔记到编辑器
 function renderNoteEditor(noteId) {
+    // console.log("Rendering note with ID:", noteId); // 添加调试信息
     const note = database.notes.find((note) => note.id === noteId);
-    if (!note) return;
+    if (!note) {
+        console.error("Note not found");
+        return;
+    }
   
     selectedNoteId = noteId;
     document.getElementById("note-title").value = note.title;
     document.getElementById("note-tags").value = note.tags.join(", ");
-    document.getElementById("last-modified").innerText = note.lastModified;
+    document.getElementById("last-modified-time").innerText = note.lastModified;
     renderTags(note.tags);
   
     // 增加查看次数
     note.viewCount = (note.viewCount || 0) + 1;
     saveDatabase();
-  
+
     if (isMarkdownMode) {
         // 加载到 Markdown 编辑器
         document.getElementById("markdown-input").value = stripHtmlTags(note.content);
         updateMarkdownPreview();
     } else {
         // 加载到富文本编辑器
+        document.getElementById("note-title").value = note.title;
         quill.root.innerHTML = note.content;
     }
 }
@@ -394,13 +399,13 @@ function toggleMarkdownMode() {
       // 切换到富文本编辑器
       markdownEditor.style.display = "none";
       quillEditor.style.display = "block";
-      quillToolbar.style.display = "block"; // 显示工具栏
+      quillToolbar.style.display = "block"; 
       toggleButton.textContent = "切换到 Markdown 编辑";
   } else {
       // 切换到 Markdown 编辑器
       markdownEditor.style.display = "block";
       quillEditor.style.display = "none";
-      quillToolbar.style.display = "none"; // 隐藏工具栏
+      quillToolbar.style.display = "none"; 
       toggleButton.textContent = "切换到富文本编辑";
 
       // 如果当前有选中的笔记，将内容同步到 Markdown 编辑器
@@ -420,8 +425,8 @@ function toggleMarkdownMode() {
 //markdown-preview 的高度根据内容动态调整
 function adjustMarkdownPreviewHeight() {
   const markdownPreview = document.getElementById("markdown-preview");
-  const contentHeight = markdownPreview.scrollHeight; // 获取内容高度
-  const maxHeight = 200; // 最大高度
+  const contentHeight = markdownPreview.scrollHeight;
+  const maxHeight = 200; 
   markdownPreview.style.height = `${Math.min(contentHeight, maxHeight)}px`; // 动态设置高度
 }
 
@@ -441,26 +446,28 @@ document.getElementById("markdown-input").addEventListener("input", updateMarkdo
 // 绑定切换按钮事件
 document.getElementById("toggle-markdown").addEventListener("click", toggleMarkdownMode);
 
-//渲染图表
+let noteStatisticsChart; // 在函数外部定义一个变量来存储图表实例
+
 function renderStatistics() {
     const ctx = document.getElementById('noteStatisticsChart').getContext('2d');
 
+    // 如果已有图表实例，则销毁
+    if (noteStatisticsChart) {
+        noteStatisticsChart.destroy(); // 销毁旧的图表实例
+    }
+
     // 设置Canvas的实际尺寸
     const canvas = document.getElementById('noteStatisticsChart');
-    canvas.width = 800;  // 设置为你希望的固定宽度
-    canvas.height = 500; // 设置为你希望的固定高度
-
-    // 先清空之前的图表
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    canvas.width = 800;  
+    canvas.height = 500; 
 
     // 统计每个分类下的笔记数量
     const categories = database.categories.map(cat => cat.name);
     const noteCounts = database.categories.map(cat => cat.notes.length);
-
-    // 统计笔记的查看次数
     const viewCounts = database.notes.map(note => note.viewCount || 0);
 
-    const chart = new Chart(ctx, {
+    // 创建新的图表实例并赋值给 noteStatisticsChart
+    noteStatisticsChart = new Chart(ctx, {
         type: 'bar', // 使用柱状图
         data: {
             labels: categories,
@@ -488,8 +495,8 @@ function renderStatistics() {
             }
         }
     });
-    
 }
+
 
   
 // 绑定图片点击事件
@@ -531,7 +538,7 @@ function saveDatabase() {
   console.log("从 localStorage 获取到的笔记数据:", storedData); // 调试日志
   
   if (storedData) {
-    Object.assign(database, JSON.parse(storedData)); // 这里不再重新声明 `database`
+    Object.assign(database, JSON.parse(storedData)); // 这里不再重新声明 database
   }
   
   if (noteId) {
@@ -594,14 +601,14 @@ function toggleTheme() {
     const body = document.body;
     body.classList.toggle('dark-mode', isDarkMode);
 
-    // 这里可以遍历所有相关元素，确保它们的样式会被更新
+    // 遍历所有相关元素，确保它们的样式会被更新
     document.querySelectorAll('.note-editor').forEach(editor => {
         if (isDarkMode) {
-            editor.style.background = '#2a2a2a'; // 夜间模式背景
-            editor.style.color = '#ffffff'; // 夜间模式文字颜色
+            editor.style.background = '#2a2a2a'; 
+            editor.style.color = '#ffffff'; 
         } else {
-            editor.style.background = '#fff'; // 默认背景
-            editor.style.color = '#000'; // 默认文字颜色
+            editor.style.background = '#fff'; 
+            editor.style.color = '#000'; 
         }
     });
 
@@ -612,7 +619,90 @@ function toggleTheme() {
 // 绑定切换主题按钮事件
 document.getElementById("toggle-theme").addEventListener("click", toggleTheme);
 
+//定义不同语言的内容
+const translations = {
+    en: {
+        categories: "Note Categories",
+        allNotes: "All Notes",
+        searchPlaceholder: "Search notes (title, content or tags)",
+        addPlaceholder: "Add new category",
+        addCategory: "Add Category",
+        newNote: "New Note",
+        noteEditor: "Note Editor",
+        tag: "Tag",
+        noteTitlePlaceholder: "Note Title",
+        saveNote: "Save Note",
+        noNotes: "No matching notes found",
+        toggleMarkdown: "Switch to Markdown Editor", 
+        toggleRichText: "Switch to Rich Text Editor", 
+        tagsPlaceholder: "Add tags (separated by commas)",
+        currentTags: "Current Tags: ",
+        lastModifiedTime: "Last modified: ",
+    },
+    zh: {
+        categories: "笔记分类",
+        allNotes: "全部笔记",
+        searchPlaceholder: "搜索笔记 (标题、内容或标签)",
+        addPlaceholder: "新建分类",
+        addCategory: "添加分类",
+        newNote: "新建笔记",
+        noteEditor: "笔记编辑",
+        tag: "标签",
+        noteTitlePlaceholder: "笔记标题",
+        saveNote: "保存笔记",
+        noNotes: "未找到匹配的笔记",
+        toggleMarkdown: "切换到 Markdown 编辑",  
+        toggleRichText: "切换到富文本编辑",          
+        tagsPlaceholder: "添加标签 (用逗号分隔)", 
+        currentTags: "已有标签: ", 
+        lastModifiedTime: "最后修改时间: ", 
+    }
+};
 
+
+// 默认语言
+let currentLanguage = navigator.language.startsWith('zh') ? 'zh' : 'en';
+
+// 切换语言
+function updateLanguage() {
+    const lang = translations[currentLanguage];
+    
+    // 更新界面文本
+    document.querySelector(".sidebar h2").innerText = lang.categories;
+    document.querySelector(".note-list h2").innerText = lang.allNotes;
+    document.getElementById("search-input").placeholder = lang.searchPlaceholder;
+    document.getElementById("new-category").placeholder = lang.addPlaceholder;
+    document.getElementById("add-category").innerText = lang.addCategory;
+    document.getElementById("new-note").innerText = lang.newNote;
+    document.querySelector(".note-editor h2").innerText = lang.noteEditor;
+    document.querySelector(".note-editor h4").innerText = lang.tag;
+    document.getElementById("note-title").placeholder = lang.noteTitlePlaceholder;
+    document.getElementById("save-note").innerText = lang.saveNote;
+    document.getElementById("toggle-markdown").innerText = currentLanguage === 'en' ? "Switch to Markdown Editor" : "切换到 Markdown 编辑";
+    document.getElementById("note-tags").placeholder = currentLanguage === 'en' ? "Add tags (separated by commas)" : "添加标签 (用逗号分隔)";
+    document.getElementById("had-tags").innerText = lang.currentTags; 
+    document.getElementById("last-modified-time").innerText = lang.lastModifiedTime; 
+}
+
+
+document.getElementById("toggle-language").addEventListener("click", function() {
+    currentLanguage = currentLanguage === 'en' ? 'zh' : 'en';
+    updateLanguage();
+});
+
+// 初始加载界面文本
+updateLanguage();
+
+//在初始化时就设置语言
+window.onload = function() {
+    const lang = navigator.language.startsWith('zh') ? 'zh' : 'en';
+    currentLanguage = lang;
+    updateLanguage();
+    initDatabase();
+    renderCategories();
+    renderNotes();
+    renderStatistics(); // 渲染统计图表
+}
 
 
 
@@ -624,15 +714,15 @@ renderStatistics(); // 渲染统计图表
 
 // 初始化 Quill 编辑器
 const quill = new Quill("#note-content-editor", {
-  theme: "snow", // 使用 snow 主题
+  theme: "snow", 
   modules: {
       toolbar: [
-          [{ header: [1, 2, 3, false] }], // 标题
-          ["bold", "italic", "underline", "strike"], // 加粗、斜体、下划线、删除线
-          [{ list: "ordered" }, { list: "bullet" }], // 有序列表、无序列表
-          ["link", "table"], // 链接、表格
-          [{ color: [] }, { background: [] }], // 字体颜色、背景颜色
-          ["clean"], // 清除格式
+          [{ header: [1, 2, 3, false] }],
+          ["bold", "italic", "underline", "strike"], 
+          [{ list: "ordered" }, { list: "bullet" }], 
+          ["link", "table"], 
+          [{ color: [] }, { background: [] }], 
+          ["clean"], 
       ],
   },
 });

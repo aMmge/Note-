@@ -10,21 +10,25 @@
 </head>
 <body>
     <div class="container">
-        <!-- Sidebar for categories -->
         <div class="sidebar">
-
             <h2>笔记分类</h2>
             <ul id="category-list">
                 <li data-category="all">全部笔记</li>
             </ul>
             <input type="text" id="new-category" placeholder="新建分类">
             <button id="add-category">添加分类</button>
-            <img src="img/moon.png" id="toggle-theme" style="cursor: pointer; width: 20px; margin-left: 10px;" alt="切换夜间模式">
+
+            <div class="icon-container">
+                <img src="img/chart.png" id="show-chart" style="cursor: pointer;" alt="显示图表">
+                <img src="img/moon.png" id="toggle-theme" style="cursor: pointer;" alt="切换夜间模式">
+                <img src="img/language.png" id="toggle-language" style="cursor: pointer;" alt="切换语言">
+            </div>
+            
         </div>
 
-        <!-- Notes list -->
+
         <div class="note-list">
-            <h2>全部笔记<img src="img/chart.png" id="show-chart" style="cursor: pointer; width: 20px; margin-left: 10px;" alt="显示图表"></h2>
+            <h2>全部笔记</h2>
 
             <!-- 弹窗结构 -->
             <div id="chart-modal" class="modal" style="display: none;">
@@ -41,24 +45,14 @@
                 <button id="search-btn">搜索</button>
             </div>
 
-            <!-- 按标签筛选 -->
-            <!-- <div class="filter">
-                <label for="filter-tags">按标签筛选: </label>
-                <select id="filter-tags">
-                    <option value="all">全部标签</option>
-                </select>
-            </div> -->
-
             <ul id="notes">
-                <!-- Dynamic Notes List -->
+                <!-- 笔记列表 -->
             </ul>
 
-            
             <button id="new-note">新建笔记</button>
 
         </div>
 
-        <!-- Note editor -->
         <div class="note-editor">
             <h2>笔记编辑</h2>
             <input type="text" id="note-title" placeholder="笔记标题">
@@ -70,11 +64,11 @@
             </div>
             <div class="tags">
                 <h4>标签</h4>
-                <input type="text" id="note-tags" placeholder="添加标签 (用逗号分隔)">
-                <p>已有标签: <span id="current-tags"></span></p>
+                <input type="text" id="note-tags" placeholder="添加标签 (用逗号分隔)" style="width: 200px; height: 25px;">
+                <p id="had-tags">已有标签:  <span id="current-tags"></span></p>
                 <div id="tags-container"></div>
             </div>
-            <p>最后修改时间: <span id="last-modified">无</span></p>
+            <p id="last-modified-time">最后修改时间: <span id="last-modified">无</span></p>
             <button id="save-note">保存笔记</button>
             <img src="img/share.png" id="share-note" class="icon-button" title="分享笔记" >
             <img src="img/export.png" id="export-note" class="icon-button" title="导出笔记" >
